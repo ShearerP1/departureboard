@@ -3,11 +3,15 @@ from flask import Flask, jsonify, render_template
 import requests, time
 from datetime import datetime
 
+# importing os module for environment variables
+import os
+# importing necessary functions from dotenv library
+from dotenv import load_dotenv, dotenv_values 
+# loading variables from .env file
+load_dotenv() 
 
-
-with open("api_key.txt", "r") as f:
-    API_KEY = f.read().strip()
-
+# accessing and printing value
+API_KEY = os.getenv("MY_KEY")
 STATION_ID = "740000031"
 CACHE_TTL = 300  # 5 minutes
 
