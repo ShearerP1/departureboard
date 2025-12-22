@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Departures – Flemingsberg</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #ffd200;
+    font-family: "Arial", sans-serif;
+  }
+
+  h1 {
+    margin: 20px;
+    font-size: 2.5em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  thead {
+    border-bottom: 3px solid #ffd200;
+  }
+
+  th, td {
+    padding: 12px 16px;
+    font-size: 1.6em;
+  }
+
+  th {
+    text-align: left;
+    font-weight: bold;
+  }
+
+  tr {
+    border-bottom: 1px solid #333;
+  }
+
+  /* Column alignment */
+  .col-min {
+    width: 10%;
+    text-align: right;
+  }
+
+  .col-dest {
+    width: 70%;
+    text-align: left;
+  }
+
+  .col-time {
+    width: 20%;
+    text-align: right;
+  }
+
+  /* Highlight soon departures */
+  .soon {
+    color: #ff5555;
+    font-weight: bold;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Flemingsberg – Pendeltåg</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th class="col-min">Min</th>
+      <th class="col-dest">Destination</th>
+      <th class="col-time">Time</th>
+    </tr>
+  </thead>
+  <tbody id="board"></tbody>
+</table>
+
+<script>
+async function loadData() {
+  const res = await fetch("/data");
+  const data = await res.json();
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  const now = Math.floor(Date.now() / 1000);
+
+  data.forEach(d => {
+    const mins = Math.max(0, Math.floor((d.departure_ts - now) / 60));
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td class="col-min ${mins <= 5 ? 'soon' : ''}">${mins}</td>
+      <td class="col-dest">${d.direction}</td>
+      <td class="col-time">
+        ${new Date(d.departure_ts * 1000).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        })}
+      </td>
+    `;
+
+    board.appendChild(row);
+  });
+}
+
+/* Update countdown every second */
+loadData();
+setInterval(loadData, 1000);
+</script>
+
+</body>
+</html>
