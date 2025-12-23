@@ -10,6 +10,9 @@ from dotenv import load_dotenv, dotenv_values
 # loading variables from .env file
 load_dotenv() 
 
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)
+
 # accessing and printing value
 API_KEY = os.getenv("MY_KEY")
 STATION_ID = "740000031"
