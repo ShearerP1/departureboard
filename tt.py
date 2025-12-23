@@ -16,17 +16,7 @@ API_KEY = os.getenv("MY_KEY")
 STATION_ID = "740000031"
 CACHE_TTL = 300  # 5 minutes
 
-
-
-#force stockholm local time
-dep_dt = datetime.strptime(
-    f"{d['date']} {d['time']}",
-    "%Y-%m-%d %H:%M:%S"
-).replace(tzinfo=ZoneInfo("Europe/Stockholm"))
-
-
 app = Flask(__name__)
-
 
 cache = {
     "timestamp": 0,
@@ -53,7 +43,7 @@ def fetch_departures():
         dep_dt = datetime.strptime(
             f"{d['date']} {d['time']}",
             "%Y-%m-%d %H:%M:%S"
-        )
+        ).replace(tzinfo=ZoneInfo("Europe/Stockholm"))
 
         departures.append({
             "name": d.get("name"),
