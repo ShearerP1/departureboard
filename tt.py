@@ -17,6 +17,7 @@ CACHE_TTL = 300  # 5 minutes
 
 app = Flask(__name__)
 
+
 cache = {
     "timestamp": 0,
     "data": []
@@ -68,5 +69,7 @@ def data():
 def index():
     return render_template("index.html")
 
+#adding for railway compatibility
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
