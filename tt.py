@@ -12,9 +12,9 @@ from dotenv import load_dotenv, dotenv_values
 load_dotenv() 
 
 # accessing and printing value
-API_KEY = os.getenv("MY_KEY")
+API_KEY = os.environ["SL_KEY"]
 STATION_ID = "740000031"
-CACHE_TTL = 300  # 5 minutes
+CACHE_TTL = 150  # 5 minutes
 
 app = Flask(__name__)
 
