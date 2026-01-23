@@ -10,5 +10,5 @@
 #set up the environment and install required packages
 python -m venv venv
 source venv/bin/activate
-pip install flask requests pythjon-dotenv gunicorn tzdata
+pip install flask requests python-dotenv gunicorn tzdata
 python tt.py
