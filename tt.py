@@ -13,7 +13,13 @@ load_dotenv()
 
 # accessing and printing value
 API_KEY = os.environ["SL_KEY"]
-STATION_ID = "740000031"
+FLEMINGSBERG_STATION_ID = "740000031"
+
+STATION_NAMES_LOOKUP = {
+  FLEMINGSBERG_STATION_ID: "Flemingsberg",
+  "740000001": "Stockholm Centralstation"
+}
+
 CACHE_TTL = 150  # 5 minutes
 
 app = Flask(__name__)
@@ -23,10 +29,10 @@ cache = {
     "data": []
 }
 
-def fetch_departures():
+def fetch_departures(station_id):
     url = (
         f"https://api.resrobot.se/v2.1/departureBoard"
-        f"?id={STATION_ID}"
+        f"?id={station_id}"
         f"&format=json"
         f"&maxJourneys=8"
         f"&accessId={API_KEY}"
@@ -54,20 +60,24 @@ def fetch_departures():
 
     return departures
 
-def get_cached_departures():
+def get_cached_departures(station_id):
+    ## TODO reinstate caching
+    return fetch_departures(station_id)
     now = time.time()
     if now - cache["timestamp"] > CACHE_TTL:
-        cache["data"] = fetch_departures()
+        cache["data"] = fetch_departures(station_id)
         cache["timestamp"] = now
     return cache["data"]
 
-@app.route("/data")
-def data():
-    return jsonify(get_cached_departures())
+@app.route("/data/<station_id>")
+def data(station_id):
+    return jsonify(get_cached_departures(station_id))
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+@app.route("/<station_id>")
+def index(station_id=FLEMINGSBERG_STATION_ID):
+    station_name = STATION_NAMES_LOOKUP.get(station_id, station_id) # Just use ID if name is not found in lookup
+    return render_template("index.html",station_id=station_id, station_name=station_name)
 
 #adding for railway compatibility
 if __name__ == "__main__":
