@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Departures – Flemingsberg</title>
+<title>Departures – {{station_name}}</title>
 
 <style>
   body {
@@ -67,7 +67,7 @@
 
 <body>
 
-<h1>Flemingsberg – Pendeltåg</h1>
+<h1>{{station_name}} – Pendeltåg</h1>
 
 <table>
   <thead>
@@ -82,7 +82,7 @@
 
 <script>
 async function loadData() {
-  const res = await fetch("/data");
+  const res = await fetch("/data/{{station_id}}");
   const data = await res.json();
   const board = document.getElementById("board");
   board.innerHTML = "";
