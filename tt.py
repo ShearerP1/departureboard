@@ -3,6 +3,7 @@ from flask import Flask, jsonify, render_template
 import requests, time
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from cache import Cache
 
 # importing os module for environment variables
 import os
@@ -13,21 +14,18 @@ load_dotenv()
 
 # accessing and printing value
 API_KEY = os.environ["SL_KEY"]
-FLEMINGSBERG_STATION_ID = "740000031"
+DEFAULT_STATION_ID = "740000031" # Flemingsberg
 
 STATION_NAMES_LOOKUP = {
-  FLEMINGSBERG_STATION_ID: "Flemingsberg",
+  "740000031": "Flemingsberg",
   "740000001": "Stockholm Centralstation"
 }
 
-CACHE_TTL = 150  # 5 minutes
+CACHE_TTL = 150  # 2.5 minutes
+cache = Cache()
 
 app = Flask(__name__)
 
-cache = {
-    "timestamp": 0,
-    "data": []
-}
 
 def fetch_departures(station_id):
     url = (
@@ -61,13 +59,13 @@ def fetch_departures(station_id):
     return departures
 
 def get_cached_departures(station_id):
-    ## TODO reinstate caching
-    return fetch_departures(station_id)
-    now = time.time()
-    if now - cache["timestamp"] > CACHE_TTL:
-        cache["data"] = fetch_departures(station_id)
-        cache["timestamp"] = now
-    return cache["data"]
+    cached_data = cache.get(station_id)
+    if cached_data:
+        return cached_data
+    
+    data = fetch_departures(station_id)
+    cache.set(station_id=station_id, data=data, ttl=CACHE_TTL)
+    return data
 
 @app.route("/data/<station_id>")
 def data(station_id):
@@ -75,7 +73,7 @@ def data(station_id):
 
 @app.route("/")
 @app.route("/<station_id>")
-def index(station_id=FLEMINGSBERG_STATION_ID):
+def index(station_id=DEFAULT_STATION_ID):
     station_name = STATION_NAMES_LOOKUP.get(station_id, station_id) # Just use ID if name is not found in lookup
     return render_template("index.html",station_id=station_id, station_name=station_name)
 
